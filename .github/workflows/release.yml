@@ -1,14 +1,16 @@
-name: Build
+name: Release
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
+    tags:
+      - "v*"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,16 +43,15 @@ jobs:
           npm ci
           npm run build
 
-      - name: Upload Backend Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-jar
-          path: backend/target/*.jar
-          if-no-files-found: error
+      - name: Package Frontend Dist
+        run: |
+          cd frontend
+          zip -r ../frontend-dist.zip dist
 
-      - name: Upload Frontend Artifact
-        uses: actions/upload-artifact@v4
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: frontend-dist
-          path: frontend/dist
-          if-no-files-found: error
+          generate_release_notes: true
+          files: |
+            backend/target/*.jar
+            frontend-dist.zip

@@ -1,12 +1,13 @@
 # Ledger Pro
 
 [![Build](https://github.com/jack-nie/ledger-pro/actions/workflows/build.yml/badge.svg)](https://github.com/jack-nie/ledger-pro/actions/workflows/build.yml)
-[![Release](https://img.shields.io/github/v/release/jack-nie/ledger-pro?display_name=tag)](https://github.com/jack-nie/ledger-pro/releases)
+[![Release](https://github.com/jack-nie/ledger-pro/actions/workflows/release.yml/badge.svg)](https://github.com/jack-nie/ledger-pro/actions/workflows/release.yml)
+[![Latest Release](https://img.shields.io/github/v/release/jack-nie/ledger-pro?display_name=tag)](https://github.com/jack-nie/ledger-pro/releases)
 [![Repo](https://img.shields.io/github/repo-size/jack-nie/ledger-pro)](https://github.com/jack-nie/ledger-pro)
 
 一个基于 `Spring Boot + React + MySQL + Redis` 的记账应用，覆盖常见记账软件的核心能力，并补全了登录鉴权、分账、导出和定时记账。
 
-## 已实现功能
+## 功能概览
 
 - 登录鉴权：用户名密码登录，Redis 保存 Token 会话
 - 月度仪表盘：收入、支出、结余、储蓄率、账户余额
@@ -74,7 +75,7 @@ npm run dev
 
 - `http://localhost:5173`
 
-开发模式下，Vite 默认代理 `/api` 到 `http://localhost:8080`。如果本机 `8080` 已被占用，可以在启动前端前设置：
+开发模式下，Vite 默认代理 `/api` 到 `http://localhost:8080`。如果本机 `8080` 已被占用，可以先指定：
 
 ```powershell
 $env:LEDGER_BACKEND_URL="http://localhost:8081"
@@ -131,10 +132,12 @@ npm run dev
 
 ## GitHub Actions
 
-已增加自动构建工作流 [build.yml](/D:/workspace/ledger-pro/.github/workflows/build.yml)：
+已配置两个工作流：
 
-- 触发条件：`push` 到 `main`、`pull_request`、手动触发
-- 构建内容：后端 Maven 编译、前端 Vite 构建
+- [build.yml](/D:/workspace/ledger-pro/.github/workflows/build.yml)
+  说明：在 `push main`、`pull_request`、手动触发时执行，构建后端和前端，并上传构建产物
+- [release.yml](/D:/workspace/ledger-pro/.github/workflows/release.yml)
+  说明：在推送 `v*` 标签时自动构建并创建 GitHub Release，附带后端 jar 和前端压缩包
 
 ## 本地验证
 
