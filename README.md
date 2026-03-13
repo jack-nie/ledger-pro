@@ -1,5 +1,9 @@
 # Ledger Pro
 
+[![Build](https://github.com/jack-nie/ledger-pro/actions/workflows/build.yml/badge.svg)](https://github.com/jack-nie/ledger-pro/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/jack-nie/ledger-pro?display_name=tag)](https://github.com/jack-nie/ledger-pro/releases)
+[![Repo](https://img.shields.io/github/repo-size/jack-nie/ledger-pro)](https://github.com/jack-nie/ledger-pro)
+
 一个基于 `Spring Boot + React + MySQL + Redis` 的记账应用，覆盖常见记账软件的核心能力，并补全了登录鉴权、分账、导出和定时记账。
 
 ## 已实现功能
@@ -58,14 +62,6 @@ mvnw.cmd spring-boot:run
 
 - `http://localhost:8080`
 
-首次启动会自动初始化：
-
-- 默认登录账号：`demo`
-- 默认密码：`123456`
-- 账户、分类、预算、近 6 个月示例流水
-- 一条示例分账流水
-- 两条定时记账规则
-
 ## 启动前端
 
 ```bash
@@ -78,7 +74,22 @@ npm run dev
 
 - `http://localhost:5173`
 
-开发模式下，Vite 已代理 `/api` 到 `http://localhost:8080`。
+开发模式下，Vite 默认代理 `/api` 到 `http://localhost:8080`。如果本机 `8080` 已被占用，可以在启动前端前设置：
+
+```powershell
+$env:LEDGER_BACKEND_URL="http://localhost:8081"
+npm run dev
+```
+
+## 默认初始化数据
+
+首次启动会自动初始化：
+
+- 默认登录账号：`demo`
+- 默认密码：`123456`
+- 账户、分类、预算、近 6 个月示例流水
+- 一条示例分账流水
+- 两条定时记账规则
 
 ## 主要接口
 
@@ -117,6 +128,13 @@ npm run dev
 
 - `GET /api/exports/transactions.csv`
 - `GET /api/exports/dashboard.csv`
+
+## GitHub Actions
+
+已增加自动构建工作流 [build.yml](/D:/workspace/ledger-pro/.github/workflows/build.yml)：
+
+- 触发条件：`push` 到 `main`、`pull_request`、手动触发
+- 构建内容：后端 Maven 编译、前端 Vite 构建
 
 ## 本地验证
 
