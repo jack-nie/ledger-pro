@@ -7,14 +7,25 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "../helpers";
 
+const navItems = [
+  { id: "overview", label: "概览" },
+  { id: "entry", label: "录入流水" },
+  { id: "transactions", label: "流水中心" },
+  { id: "budgets", label: "预算管理" },
+  { id: "recurring", label: "定时记账" },
+  { id: "accounts", label: "账户视图" },
+];
+
 export default function Sidebar({
   user,
   period,
+  activeTab,
   transactionsCount,
   netWorth,
   budgetAlertCount,
   recurringCount,
   firstInsight,
+  onTabChange,
   onPeriodChange,
   onLogout,
 }) {
@@ -46,13 +57,17 @@ export default function Sidebar({
         </button>
       </div>
 
-      <nav className="sidebar-card nav-stack">
-        <a href="#overview">概览</a>
-        <a href="#entry">录入流水</a>
-        <a href="#transactions">流水中心</a>
-        <a href="#budgets">预算管理</a>
-        <a href="#recurring">定时记账</a>
-        <a href="#accounts">账户视图</a>
+      <nav className="sidebar-card nav-stack" aria-label="Workspace tabs">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={activeTab === item.id ? "nav-button active" : "nav-button"}
+            onClick={() => onTabChange(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
       </nav>
 
       <div className="sidebar-card">

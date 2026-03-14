@@ -13,8 +13,6 @@ import {
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   Pie,
@@ -29,7 +27,6 @@ import { formatCurrency, formatPercent } from "../helpers";
 export default function OverviewPanels({
   loading,
   dashboard,
-  budgets,
   onExportDashboard,
   onExportTransactions,
 }) {
@@ -38,7 +35,7 @@ export default function OverviewPanels({
       <section id="overview" className="hero">
         <div>
           <p className="eyebrow">Spring Boot + React + MySQL + Redis</p>
-          <h2>把流水、预算、分账、导出和定时记账统一在一个工作台里</h2>
+          <h2>把流水、预算、分账、导出和定时记账统一放进一个工作台</h2>
         </div>
         <div className="hero-actions">
           <button type="button" className="ghost-button" onClick={onExportDashboard}>
@@ -164,78 +161,6 @@ export default function OverviewPanels({
                 <span>{item.categoryName}</span>
                 <strong>{formatPercent(item.share)}</strong>
               </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="panel">
-          <div className="panel-head">
-            <div>
-              <p className="eyebrow">Budget Board</p>
-              <h3>预算执行</h3>
-            </div>
-          </div>
-          <div className="budget-list">
-            {budgets.map((item) => (
-              <div className="budget-item" key={`${item.period}-${item.categoryId}`}>
-                <div className="budget-topline">
-                  <span>{item.categoryName}</span>
-                  <strong>{formatPercent(item.usageRate)}</strong>
-                </div>
-                <div className="progress-bar">
-                  <span
-                    style={{
-                      width: `${Math.min(Number(item.usageRate || 0), 100)}%`,
-                      background:
-                        item.status === "OVER"
-                          ? "#dc2626"
-                          : item.status === "RISK"
-                            ? "#d97706"
-                            : item.categoryColor || "#0f766e",
-                    }}
-                  />
-                </div>
-                <p>
-                  已用 {formatCurrency(item.spent)} / 预算 {formatCurrency(item.amount)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article id="accounts" className="panel panel-wide">
-          <div className="panel-head">
-            <div>
-              <p className="eyebrow">Accounts</p>
-              <h3>账户分布</h3>
-            </div>
-          </div>
-          <div className="chart-wrap small">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={dashboard?.accounts || []}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                <YAxis tickLine={false} axisLine={false} tickFormatter={formatCurrency} />
-                <Tooltip formatter={(value) => formatCurrency(value)} />
-                <Bar dataKey="balance" radius={[12, 12, 0, 0]}>
-                  {(dashboard?.accounts || []).map((item) => (
-                    <Cell key={item.id} fill={item.colorHex || "#0f766e"} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="account-grid">
-            {(dashboard?.accounts || []).map((item) => (
-              <article className="account-card" key={item.id}>
-                <span className="account-color" style={{ background: item.colorHex }} />
-                <div>
-                  <h4>{item.name}</h4>
-                  <p>{item.type}</p>
-                </div>
-                <strong>{formatCurrency(item.balance)}</strong>
-              </article>
             ))}
           </div>
         </article>

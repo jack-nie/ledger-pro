@@ -213,6 +213,29 @@ select {
   padding: 18px;
 }
 
+.nav-button {
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+  transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.nav-button:hover {
+  background: rgba(15, 118, 110, 0.1);
+  color: var(--text);
+  transform: translateX(4px);
+}
+
+.nav-button.active {
+  background: rgba(15, 118, 110, 0.14);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.12);
+}
+
 .nav-stack a {
   padding: 12px 14px;
   border-radius: 14px;
@@ -260,6 +283,20 @@ select {
 
 .content {
   min-width: 0;
+}
+
+.tab-shell {
+  display: grid;
+  gap: 18px;
+  align-items: start;
+}
+
+.tab-shell-narrow {
+  grid-template-columns: minmax(0, 760px);
+}
+
+.tab-shell-budget {
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
 }
 
 .hero {
@@ -768,6 +805,7 @@ select:focus {
   .account-grid,
   .form-grid,
   .recurring-layout,
+  .tab-shell,
   .login-page {
     grid-template-columns: 1fr;
   }

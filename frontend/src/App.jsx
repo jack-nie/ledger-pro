@@ -36,6 +36,8 @@ import {
   emptyBootstrap,
   firstOptionId,
 } from "./helpers";
+import AccountsPanel from "./components/AccountsPanel";
+import BudgetStatusPanel from "./components/BudgetStatusPanel";
 import BudgetFormPanel from "./components/BudgetFormPanel";
 import LoginPage from "./components/LoginPage";
 import OverviewPanels from "./components/OverviewPanels";
@@ -43,9 +45,25 @@ import RecurringSection from "./components/RecurringSection";
 import Sidebar from "./components/Sidebar";
 import TransactionSection from "./components/TransactionSection";
 
+const tabs = ["overview", "entry", "transactions", "budgets", "recurring", "accounts"];
+
+function isValidTab(tab) {
+  return tabs.includes(tab);
+}
+
+function getTabFromHash() {
+  if (typeof window === "undefined") {
+    return "overview";
+  }
+
+  const hash = window.location.hash.replace(/^#/, "");
+  return isValidTab(hash) ? hash : "overview";
+}
+
 export default function App() {
   const initialSession = loadSession();
   const [session, setSession] = useState(initialSession);
+  const [activeTab, setActiveTab] = useState(getTabFromHash);
   const [user, setUser] = useState(
     initialSession
       ? {
@@ -108,6 +126,25 @@ export default function App() {
   const budgetAlertCount = budgets.filter(
     (item) => item.status === "RISK" || item.status === "OVER"
   ).length;
+
+  useEffect(() => {
+    function handleHashChange() {
+      const nextTab = getTabFromHash();
+      setActiveTab((current) => (current === nextTab ? current : nextTab));
+    }
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const nextHash = `#${activeTab}`;
+    if (window.location.hash !== nextHash) {
+      window.history.replaceState(null, "", nextHash);
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     let active = true;
@@ -213,6 +250,7 @@ export default function App() {
   function resetSession() {
     clearSession();
     setSession(null);
+    setActiveTab("overview");
     setUser(null);
     setBootstrap(emptyBootstrap);
     setPeriod("");
@@ -255,6 +293,7 @@ export default function App() {
       startTransition(() => {
         applyBootstrapState(bootstrapData);
       });
+      setActiveTab("overview");
       setStatus("已进入账本工作台");
     } catch (requestError) {
       handleRequestError(requestError);
@@ -496,7 +535,7 @@ export default function App() {
         note: split.note || "",
       })),
     });
-    window.location.hash = "#entry";
+    setActiveTab("entry");
   }
 
   function editRecurringRule(item) {
@@ -517,7 +556,124 @@ export default function App() {
       tagsInput: item.labels || "",
       active: item.active,
     });
-    window.location.hash = "#recurring";
+    setActiveTab("recurring");
+  }
+
+  function renderActiveTab() {
+    if (activeTab === "overview") {
+      return (
+        <OverviewPanels
+          loading={workspaceLoading}
+          dashboard={dashboard}
+          onExportDashboard={handleExportDashboard}
+          onExportTransactions={handleExportTransactions}
+        />
+      );
+    }
+
+    if (activeTab === "entry") {
+      return (
+        <section className="tab-shell tab-shell-narrow">
+          <TransactionSection
+            view="entry"
+            bootstrap={bootstrap}
+            allCategories={allCategories}
+            filters={filters}
+            popularTags={popularTags}
+            transactionForm={transactionForm}
+            transactions={transactions}
+            editingTransactionId={editingTransactionId}
+            splitTotal={splitTotal}
+            onFilterChange={(field, value) =>
+              setFilters((current) => ({ ...current, [field]: value }))
+            }
+            onExport={handleExportTransactions}
+            onSubmit={handleTransactionSubmit}
+            onEdit={editTransaction}
+            onDelete={handleDeleteTransaction}
+            onResetEdit={() => {
+              setEditingTransactionId(null);
+              setTransactionForm(createTransactionForm(bootstrap, period));
+            }}
+            onFieldChange={handleTransactionField}
+            onToggleSplitMode={toggleSplitMode}
+            onSplitChange={updateSplit}
+            onAddSplit={addSplit}
+            onRemoveSplit={removeSplit}
+          />
+        </section>
+      );
+    }
+
+    if (activeTab === "transactions") {
+      return (
+        <TransactionSection
+          view="transactions"
+          bootstrap={bootstrap}
+          allCategories={allCategories}
+          filters={filters}
+          popularTags={popularTags}
+          transactionForm={transactionForm}
+          transactions={transactions}
+          editingTransactionId={editingTransactionId}
+          splitTotal={splitTotal}
+          onFilterChange={(field, value) =>
+            setFilters((current) => ({ ...current, [field]: value }))
+          }
+          onExport={handleExportTransactions}
+          onSubmit={handleTransactionSubmit}
+          onEdit={editTransaction}
+          onDelete={handleDeleteTransaction}
+          onResetEdit={() => {
+            setEditingTransactionId(null);
+            setTransactionForm(createTransactionForm(bootstrap, period));
+          }}
+          onFieldChange={handleTransactionField}
+          onToggleSplitMode={toggleSplitMode}
+          onSplitChange={updateSplit}
+          onAddSplit={addSplit}
+          onRemoveSplit={removeSplit}
+        />
+      );
+    }
+
+    if (activeTab === "budgets") {
+      return (
+        <section className="tab-shell tab-shell-budget">
+          <BudgetFormPanel
+            bootstrap={bootstrap}
+            budgetForm={budgetForm}
+            onFieldChange={(field, value) =>
+              setBudgetForm((current) => ({ ...current, [field]: value }))
+            }
+            onSubmit={handleBudgetSubmit}
+          />
+          <BudgetStatusPanel budgets={budgets} />
+        </section>
+      );
+    }
+
+    if (activeTab === "accounts") {
+      return <AccountsPanel accounts={dashboard?.accounts} />;
+    }
+
+    return (
+      <RecurringSection
+        bootstrap={bootstrap}
+        recurringForm={recurringForm}
+        recurringRules={recurringRules}
+        editingRuleId={editingRuleId}
+        onFieldChange={handleRecurringField}
+        onSubmit={handleRecurringSubmit}
+        onProcess={handleProcessRecurringRules}
+        onEdit={editRecurringRule}
+        onDelete={handleDeleteRecurringRule}
+        onResetEdit={() => {
+          setEditingRuleId(null);
+          setRecurringForm(createRecurringForm(bootstrap));
+        }}
+      />
+    );
   }
 
   if (authChecking) {
@@ -543,11 +699,13 @@ export default function App() {
       <Sidebar
         user={user}
         period={period}
+        activeTab={activeTab}
         transactionsCount={transactions.length}
         netWorth={netWorth}
         budgetAlertCount={budgetAlertCount}
         recurringCount={recurringRules.length}
         firstInsight={dashboard?.insights?.[0]?.description}
+        onTabChange={setActiveTab}
         onPeriodChange={(event) => setPeriod(event.target.value)}
         onLogout={handleLogout}
       />
@@ -555,69 +713,7 @@ export default function App() {
       <main className="content">
         {error ? <div className="message error">{error}</div> : null}
         {status ? <div className="message success">{status}</div> : null}
-
-        <OverviewPanels
-          loading={workspaceLoading}
-          dashboard={dashboard}
-          budgets={budgets}
-          onExportDashboard={handleExportDashboard}
-          onExportTransactions={handleExportTransactions}
-        />
-
-        <section className="grid-layout">
-          <TransactionSection
-            bootstrap={bootstrap}
-            period={period}
-            allCategories={allCategories}
-            filters={filters}
-            popularTags={popularTags}
-            transactionForm={transactionForm}
-            transactions={transactions}
-            editingTransactionId={editingTransactionId}
-            splitTotal={splitTotal}
-            onFilterChange={(field, value) =>
-              setFilters((current) => ({ ...current, [field]: value }))
-            }
-            onExport={handleExportTransactions}
-            onSubmit={handleTransactionSubmit}
-            onEdit={editTransaction}
-            onDelete={handleDeleteTransaction}
-            onResetEdit={() => {
-              setEditingTransactionId(null);
-              setTransactionForm(createTransactionForm(bootstrap, period));
-            }}
-            onFieldChange={handleTransactionField}
-            onToggleSplitMode={toggleSplitMode}
-            onSplitChange={updateSplit}
-            onAddSplit={addSplit}
-            onRemoveSplit={removeSplit}
-          />
-
-          <BudgetFormPanel
-            bootstrap={bootstrap}
-            budgetForm={budgetForm}
-            onFieldChange={(field, value) =>
-              setBudgetForm((current) => ({ ...current, [field]: value }))
-            }
-            onSubmit={handleBudgetSubmit}
-          />
-
-          <RecurringSection
-            bootstrap={bootstrap}
-            recurringForm={recurringForm}
-            recurringRules={recurringRules}
-            editingRuleId={editingRuleId}
-            onFieldChange={handleRecurringField}
-            onSubmit={handleRecurringSubmit}
-            onProcess={handleProcessRecurringRules}
-            onEdit={editRecurringRule}
-            onDelete={handleDeleteRecurringRule}
-            onResetEdit={() => {
-              setEditingRuleId(null);
-              setRecurringForm(createRecurringForm(bootstrap));
-            }}
-          />
-        </section>
+        {renderActiveTab()}
       </main>
     </div>
   );
