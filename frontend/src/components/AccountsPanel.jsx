@@ -16,7 +16,8 @@ export default function AccountsPanel({ accounts }) {
       <div className="panel-head">
         <div>
           <p className="eyebrow">Accounts</p>
-          <h3>账户分布</h3>
+          <h3>账户资源视图</h3>
+          <p className="panel-subcopy">按余额查看各账户分布，布局参考云主机控制台资源页。</p>
         </div>
       </div>
 
@@ -27,9 +28,9 @@ export default function AccountsPanel({ accounts }) {
             <XAxis dataKey="name" tickLine={false} axisLine={false} />
             <YAxis tickLine={false} axisLine={false} tickFormatter={formatCurrency} />
             <Tooltip formatter={(value) => formatCurrency(value)} />
-            <Bar dataKey="balance" radius={[12, 12, 0, 0]}>
+            <Bar dataKey="balance" radius={[6, 6, 0, 0]}>
               {(accounts || []).map((item) => (
-                <Cell key={item.id} fill={item.colorHex || "#0f766e"} />
+                <Cell key={item.id} fill={item.colorHex || "#0064ff"} />
               ))}
             </Bar>
           </BarChart>

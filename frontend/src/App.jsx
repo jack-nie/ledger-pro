@@ -1,4 +1,5 @@
 import { startTransition, useDeferredValue, useEffect, useState } from "react";
+import { CalendarRange, ChevronRight, Cloud, ShieldCheck } from "lucide-react";
 import {
   clearSession,
   createRecurringRule,
@@ -34,6 +35,7 @@ import {
   createSplitRow,
   createTransactionForm,
   emptyBootstrap,
+  formatCurrency,
   firstOptionId,
 } from "./helpers";
 import AccountsPanel from "./components/AccountsPanel";
@@ -46,6 +48,39 @@ import Sidebar from "./components/Sidebar";
 import TransactionSection from "./components/TransactionSection";
 
 const tabs = ["overview", "entry", "transactions", "budgets", "recurring", "accounts"];
+
+const tabMeta = {
+  overview: {
+    label: "总览",
+    title: "账本总览",
+    description: "查看本期现金流、消费结构和账户运行状态。",
+  },
+  entry: {
+    label: "录入流水",
+    title: "新增账务流水",
+    description: "以控制台工单录入方式集中新增收入、支出和转账记录。",
+  },
+  transactions: {
+    label: "流水列表",
+    title: "流水检索中心",
+    description: "按条件过滤、检索和导出账务流水。",
+  },
+  budgets: {
+    label: "预算管理",
+    title: "预算策略与执行",
+    description: "维护分类预算并监控本期使用率和风险状态。",
+  },
+  recurring: {
+    label: "周期规则",
+    title: "自动记账任务",
+    description: "像任务调度后台一样配置和执行周期记账规则。",
+  },
+  accounts: {
+    label: "账户视图",
+    title: "账户资源分布",
+    description: "查看各账户余额分布和当前净资产结构。",
+  },
+};
 
 function isValidTab(tab) {
   return tabs.includes(tab);
@@ -126,6 +161,7 @@ export default function App() {
   const budgetAlertCount = budgets.filter(
     (item) => item.status === "RISK" || item.status === "OVER"
   ).length;
+  const currentTabMeta = tabMeta[activeTab];
 
   useEffect(() => {
     function handleHashChange() {
@@ -695,26 +731,81 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
-      <Sidebar
-        user={user}
-        period={period}
-        activeTab={activeTab}
-        transactionsCount={transactions.length}
-        netWorth={netWorth}
-        budgetAlertCount={budgetAlertCount}
-        recurringCount={recurringRules.length}
-        firstInsight={dashboard?.insights?.[0]?.description}
-        onTabChange={setActiveTab}
-        onPeriodChange={(event) => setPeriod(event.target.value)}
-        onLogout={handleLogout}
-      />
+    <div className="console-root">
+      <header className="console-topbar">
+        <div className="topbar-brand">
+          <div className="topbar-logo">
+            <Cloud size={18} />
+          </div>
+          <div>
+            <strong>Ledger Pro Console</strong>
+            <span>腾讯云后台风格布局</span>
+          </div>
+        </div>
 
-      <main className="content">
-        {error ? <div className="message error">{error}</div> : null}
-        {status ? <div className="message success">{status}</div> : null}
-        {renderActiveTab()}
-      </main>
+        <div className="topbar-pills">
+          <span className="topbar-pill">Finance Workspace</span>
+          <span className="topbar-pill">MySQL + Redis</span>
+        </div>
+
+        <div className="topbar-user">
+          <ShieldCheck size={16} />
+          <span>{user.displayName}</span>
+        </div>
+      </header>
+
+      <div className="app-shell">
+        <Sidebar
+          user={user}
+          activeTab={activeTab}
+          transactionsCount={transactions.length}
+          netWorth={netWorth}
+          budgetAlertCount={budgetAlertCount}
+          recurringCount={recurringRules.length}
+          firstInsight={dashboard?.insights?.[0]?.description}
+          onTabChange={setActiveTab}
+          onLogout={handleLogout}
+        />
+
+        <main className="content">
+          <section className="page-header">
+            <div className="page-heading">
+              <div className="page-breadcrumb">
+                <span>财务控制台</span>
+                <ChevronRight size={14} />
+                <span>{currentTabMeta.label}</span>
+              </div>
+              <h2>{currentTabMeta.title}</h2>
+              <p>{currentTabMeta.description}</p>
+            </div>
+
+            <div className="page-actions">
+              <label className="console-input console-input-month">
+                <CalendarRange size={16} />
+                <input
+                  type="month"
+                  value={period}
+                  onChange={(event) => setPeriod(event.target.value)}
+                />
+              </label>
+
+              <div className="page-kpi">
+                <span>净资产</span>
+                <strong>{formatCurrency(netWorth)}</strong>
+              </div>
+
+              <div className="page-kpi">
+                <span>预算预警</span>
+                <strong>{budgetAlertCount}</strong>
+              </div>
+            </div>
+          </section>
+
+          {error ? <div className="message error">{error}</div> : null}
+          {status ? <div className="message success">{status}</div> : null}
+          {renderActiveTab()}
+        </main>
+      </div>
     </div>
   );
 }

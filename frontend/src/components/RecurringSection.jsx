@@ -1,5 +1,10 @@
 import { Pencil, RefreshCcw, Trash2 } from "lucide-react";
-import { categoriesByType, formatCurrency, frequencyLabels, typeLabels } from "../helpers";
+import {
+  categoriesByType,
+  formatCurrency,
+  frequencyLabels,
+  typeLabels,
+} from "../helpers";
 
 export default function RecurringSection({
   bootstrap,
@@ -19,13 +24,14 @@ export default function RecurringSection({
     <article id="recurring" className="panel panel-wide">
       <div className="panel-head">
         <div>
-          <p className="eyebrow">Recurring</p>
-          <h3>定时记账</h3>
+          <p className="eyebrow">Recurring Tasks</p>
+          <h3>周期任务编排</h3>
+          <p className="panel-subcopy">像后台定时任务一样管理自动记账规则与执行周期。</p>
         </div>
         <div className="panel-actions">
           <button type="button" className="ghost-button" onClick={onProcess}>
             <RefreshCcw size={16} />
-            补跑到期规则
+            立即处理到期规则
           </button>
           {editingRuleId ? (
             <button type="button" className="ghost-button" onClick={onResetEdit}>

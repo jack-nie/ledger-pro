@@ -8,8 +8,9 @@ export default function BudgetFormPanel({
     <article id="budgets" className="panel">
       <div className="panel-head">
         <div>
-          <p className="eyebrow">Budget</p>
-          <h3>预算设定</h3>
+          <p className="eyebrow">Budget Form</p>
+          <h3>预算策略配置</h3>
+          <p className="panel-subcopy">按月份和支出分类设置本期预算阈值。</p>
         </div>
       </div>
       <form className="form-grid" onSubmit={onSubmit}>
@@ -39,7 +40,7 @@ export default function BudgetFormPanel({
         </label>
 
         <label className="span-2">
-          金额
+          预算金额
           <input
             type="number"
             min="0.01"
